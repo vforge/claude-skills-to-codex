@@ -1,10 +1,11 @@
 {
   "name": "claude-skills-to-codex",
-  "version": "0.1.0",
+  "version": "0.1.0+codex.20260911224647",
   "description": "Discover and reload Claude Code skills in the current Codex session.",
   "author": {
     "name": "Local developer"
   },
+  "license": "MIT",
   "skills": "./skills/",
   "interface": {
     "displayName": "Claude Skills To Codex",

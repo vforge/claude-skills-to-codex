@@ -12,6 +12,46 @@ Local Codex plugin that bridges Claude Code skills into Codex.
 
 The bridge deliberately does not copy skill files or execute their contents automatically. Codex reads a full `SKILL.md` only when that skill is relevant to the current task.
 
+## Install
+
+### Codex CLI
+
+Clone the repository and expose it through the personal plugin marketplace:
+
+```bash
+git clone https://github.com/vforge/claude-skills-to-codex.git \
+  ~/Developer/vforge/claude-skills-to-codex
+
+mkdir -p ~/plugins
+ln -sfn ~/Developer/vforge/claude-skills-to-codex \
+  ~/plugins/claude-skills-to-codex
+```
+
+Add the following plugin entry to `~/.agents/plugins/marketplace.json`, preserving any existing entries:
+
+```json
+{
+  "name": "claude-skills-to-codex",
+  "source": {
+    "source": "local",
+    "path": "./plugins/claude-skills-to-codex"
+  },
+  "policy": {
+    "installation": "AVAILABLE",
+    "authentication": "ON_INSTALL"
+  },
+  "category": "Productivity"
+}
+```
+
+Install it from the personal marketplace:
+
+```bash
+codex plugin add claude-skills-to-codex@personal
+```
+
+Start a new Codex session after installation, approve the hook if prompted, and use `/reload-skills` whenever Claude Code skills change.
+
 ## Local test
 
 From this plugin directory:
