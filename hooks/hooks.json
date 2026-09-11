@@ -1,0 +1,18 @@
+{
+  "description": "Load Claude Code skill metadata whenever a Codex session starts or resumes.",
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${PLUGIN_ROOT}/scripts/load_claude_skills.py\" --hook",
+            "statusMessage": "Loading Claude Code skills",
+            "additionalContextLimit": 5000
+          }
+        ]
+      }
+    ]
+  }
+}
