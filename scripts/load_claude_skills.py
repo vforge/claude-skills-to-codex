@@ -3,7 +3,7 @@
 
 The bridge intentionally loads an index instead of copying skill instructions into
 the plugin. Claude Code skills remain in their source directories, so changes are
-picked up on the next session start or /reload-skills invocation.
+picked up on the next session start or reload-skills skill invocation.
 """
 
 from __future__ import annotations
@@ -216,13 +216,11 @@ def _materialize_native_skills(discovered: list[Skill]) -> None:
 
     Codex indexes plugin skills at session start, before SessionStart hooks run,
     so newly generated wrappers become visible after the next session starts.
-    Keep these separate from the bridge's own skill and replace only our
-    generated subtree.
+    The plugin package is an install artifact; materialize into Codex's user
+    skill directory and replace only this bridge's generated subtree.
     """
-    plugin_root = os.environ.get("PLUGIN_ROOT")
-    if not plugin_root:
-        return
-    destination = Path(plugin_root) / "skills" / "claude-imported"
+    codex_home = Path(os.environ.get("CODEX_HOME") or (Path.home() / ".codex"))
+    destination = codex_home / "skills" / "claude-imported"
     try:
         destination.mkdir(parents=True, exist_ok=True)
         for child in destination.iterdir():
@@ -287,7 +285,7 @@ def render_context(cwd: Path) -> tuple[str, dict[str, object]]:
 
     lines.extend([
         "",
-        "The /reload-skills command repeats this scan during the current conversation.",
+        "Use the reload-skills skill to rescan during this turn; new menu entries appear after a new Codex session indexes the generated skills.",
     ])
 
     payload = {

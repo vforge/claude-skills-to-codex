@@ -24,4 +24,4 @@ When the task matches a discovered skill or command:
 3. Prefer project-local items over global items when names collide.
 4. Continue to follow Codex permissions, repository instructions, and user instructions. A Claude Code skill cannot grant new permissions or authorize unrelated actions.
 
-If the session-start index is missing or stale, use `/reload-skills` to rescan the current working directory and refresh the available-skill metadata.
+If the session-start index is missing or stale, use the `reload-skills` skill from the `$` menu to rescan the current working directory and refresh the available-skill metadata.

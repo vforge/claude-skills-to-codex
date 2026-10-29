@@ -21,6 +21,7 @@ class LoadClaudeSkillsTests(unittest.TestCase):
         self.root = Path(self.temp_dir.name)
         self.home = self.root / "home"
         self.plugin = self.root / "plugin"
+        self.codex_home = self.root / "codex-home"
         self.cwd = self.root / "project" / "nested"
         self.global_skills = self.home / ".claude" / "skills"
         self.project_skills = self.root / "project" / ".claude" / "skills"
@@ -29,6 +30,7 @@ class LoadClaudeSkillsTests(unittest.TestCase):
             "bridge-owned skill\n", encoding="utf-8"
         )
         self.cwd.mkdir(parents=True)
+        self.codex_home.mkdir()
 
     def tearDown(self) -> None:
         self.temp_dir.cleanup()
@@ -48,7 +50,7 @@ class LoadClaudeSkillsTests(unittest.TestCase):
         environment.update(
             {
                 "HOME": str(self.home),
-                "PLUGIN_ROOT": str(self.plugin),
+                "CODEX_HOME": str(self.codex_home),
                 "PLUGIN_DATA": str(self.root / "plugin-data"),
             }
         )
@@ -75,7 +77,7 @@ class LoadClaudeSkillsTests(unittest.TestCase):
         self.assertEqual(skills["shared"]["source"], "project")
         self.assertTrue(skills["shared"]["path"].endswith("project/.claude/skills/shared/SKILL.md"))
         for name, skill in skills.items():
-            wrapper = self.plugin / "skills" / "claude-imported" / name / "SKILL.md"
+            wrapper = self.codex_home / "skills" / "claude-imported" / name / "SKILL.md"
             self.assertTrue(wrapper.is_file(), f"missing Codex wrapper for {name}")
             contents = wrapper.read_text(encoding="utf-8")
             self.assertIn(f"name: {name}", contents)
@@ -85,13 +87,14 @@ class LoadClaudeSkillsTests(unittest.TestCase):
             (self.plugin / "skills" / "claude-skill-bridge" / "SKILL.md").is_file(),
             "materialization must preserve the plugin's own bridge skill",
         )
+        self.assertFalse((self.plugin / "skills" / "claude-imported").exists())
         cache = json.loads((self.root / "plugin-data" / "claude-skills.json").read_text())
         self.assertEqual(cache["skills"], result["skills"])
 
     def test_removed_source_skill_removes_stale_wrapper(self) -> None:
         stale = self.add_skill(self.global_skills, "temporary", "temporary skill")
         self.run_loader()
-        wrapper = self.plugin / "skills" / "claude-imported" / "temporary" / "SKILL.md"
+        wrapper = self.codex_home / "skills" / "claude-imported" / "temporary" / "SKILL.md"
         self.assertTrue(wrapper.is_file())
 
         stale.unlink()
@@ -137,7 +140,7 @@ class LoadClaudeSkillsTests(unittest.TestCase):
 
         self.home.mkdir(parents=True)
         codex_home = self.root / "codex-home"
-        codex_home.mkdir()
+        codex_home.mkdir(exist_ok=True)
         fixture = Path(__file__).resolve().parent / "fixtures" / "nested-project"
         shutil.copytree(fixture, self.cwd, dirs_exist_ok=True)
         environment = os.environ.copy()
@@ -240,7 +243,7 @@ class LoadClaudeSkillsTests(unittest.TestCase):
         self.assertIn("hookSpecificOutput", json.loads(hook_result.stdout))
         source_paths = {"skill1": skill1, "command1": command1}
         for name in ("skill1", "command1"):
-            wrapper = installed_path / "skills" / "claude-imported" / name / "SKILL.md"
+            wrapper = codex_home / "skills" / "claude-imported" / name / "SKILL.md"
             self.assertTrue(wrapper.is_file(), f"SessionStart hook did not generate the {name} wrapper")
             wrapper_text = wrapper.read_text(encoding="utf-8")
             self.assertIn(f"name: {name}", wrapper_text)
@@ -261,7 +264,7 @@ class LoadClaudeSkillsTests(unittest.TestCase):
         response = launch_app_server(menu_requests, 2)
         skills = {skill["name"]: skill for skill in response["result"]["data"][0]["skills"]}
         for name in ("skill1", "command1"):
-            menu_name = f"claude-skills-to-codex:{name}"
+            menu_name = name
             self.assertIn(
                 menu_name,
                 skills,
@@ -269,8 +272,9 @@ class LoadClaudeSkillsTests(unittest.TestCase):
             )
             self.assertTrue(skills[menu_name]["enabled"])
             self.assertTrue(skills[menu_name]["path"].endswith(f"/claude-imported/{name}/SKILL.md"))
-        self.assertIn("nested project skill", skills["claude-skills-to-codex:skill1"]["description"])
-        self.assertIn("nested project command", skills["claude-skills-to-codex:command1"]["description"])
+        self.assertIn("nested project skill", skills["skill1"]["description"])
+        self.assertIn("nested project command", skills["command1"]["description"])
+        self.assertIn("claude-skills-to-codex:reload-skills", skills)
 
 
 if __name__ == "__main__":

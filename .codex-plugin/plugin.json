@@ -1,6 +1,6 @@
 {
   "name": "claude-skills-to-codex",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Discover Claude Code skills and commands in the current Codex session.",
   "author": {
     "name": "Local developer"
@@ -10,14 +10,14 @@
   "interface": {
     "displayName": "Claude Skills To Codex",
     "shortDescription": "Bridge Claude Code skills and commands into Codex.",
-    "longDescription": "Scans Claude Code's global and project skill and command directories at session start and exposes a /reload-skills command for refreshing the current Codex context.",
+    "longDescription": "Scans Claude Code's global and project skill and command directories at session start and provides a reload-skills skill for refreshing the current Codex context.",
     "developerName": "Local developer",
     "category": "Productivity",
     "capabilities": [
       "Read"
     ],
     "defaultPrompt": [
-      "Reload my Claude Code skills and commands into this Codex session",
+      "Use the reload-skills skill to refresh Claude Code skills and commands",
       "Use the relevant Claude Code skill or command for this task",
       "Show which Claude Code skills and commands are available"
     ]
