@@ -1,6 +1,6 @@
 # Claude Skills to Codex
 
-Local Codex plugin that bridges Claude Code skills into Codex.
+Codex plugin that makes Claude Code skills available in Codex.
 
 ## Behavior
 
@@ -14,43 +14,54 @@ The bridge deliberately does not copy skill files or execute their contents auto
 
 ## Install
 
-### Codex CLI
+### Install from GitHub with Codex CLI
 
-Clone the repository and expose it through the personal plugin marketplace:
+Add the plugin to your personal marketplace in `~/.agents/plugins/marketplace.json`. Create the file if it does not exist. If it already exists, add the plugin object to its `plugins` array and keep the other entries.
 
 ```bash
-git clone https://github.com/vforge/claude-skills-to-codex.git \
-  ~/Developer/vforge/claude-skills-to-codex
-
-mkdir -p ~/plugins
-ln -sfn ~/Developer/vforge/claude-skills-to-codex \
-  ~/plugins/claude-skills-to-codex
+mkdir -p ~/.agents/plugins
 ```
 
-Add the following plugin entry to `~/.agents/plugins/marketplace.json`, preserving any existing entries:
+Use this complete example for a new marketplace file:
 
 ```json
 {
-  "name": "claude-skills-to-codex",
-  "source": {
-    "source": "local",
-    "path": "./plugins/claude-skills-to-codex"
+  "name": "personal",
+  "interface": {
+    "displayName": "Personal"
   },
-  "policy": {
-    "installation": "AVAILABLE",
-    "authentication": "ON_INSTALL"
-  },
-  "category": "Productivity"
+  "plugins": [
+    {
+      "name": "claude-skills-to-codex",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/vforge/claude-skills-to-codex.git"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
 }
 ```
 
-Install it from the personal marketplace:
+Install and verify the plugin:
 
 ```bash
 codex plugin add claude-skills-to-codex@personal
+codex plugin list
 ```
 
-Start a new Codex session after installation, approve the hook if prompted, and use `/reload-skills` whenever Claude Code skills change.
+Codex downloads the plugin from GitHub into its local plugin cache. You do not need to clone this repository or create a symlink. Start a new Codex session after installation and approve the hook if Codex prompts you. Use `/reload-skills` after Claude Code skills change.
+
+To publish an update, bump `version` in `.codex-plugin/plugin.json` and push the change to GitHub. The marketplace entry above follows the repository's default branch. To install the new version, remove and reinstall the plugin:
+
+```bash
+codex plugin remove claude-skills-to-codex@personal
+codex plugin add claude-skills-to-codex@personal
+```
 
 ## Local test
 
