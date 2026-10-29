@@ -7,7 +7,7 @@ Codex plugin that makes Claude Code skills and commands available in Codex.
 - A `SessionStart` hook scans `~/.claude/skills/` and `~/.claude/commands/`, plus matching project `.claude/skills/` and `.claude/commands/` directories.
 - It injects a compact metadata index into the new Codex session and keeps full skill files at their original paths.
 - Project-local skills and commands override global items with the same name.
-- The `reload-claude-skills` skill rescans the same locations during an active session. In Codex, invoke it from the `$` skill menu; plugin skills are namespaced by plugin.
+- The `reload` skill rescans the same locations during an active session. In Codex, invoke it from the `$` skill menu as `claude-skills-to-codex:reload`.
 - The hook writes a best-effort metadata cache to `PLUGIN_DATA/claude-skills.json`.
 
 The bridge leaves source files in place and creates small native Codex skill wrappers so imported items appear in Codex's skill catalog. Codex reads the full source only when that item is relevant to the current task.
@@ -24,7 +24,7 @@ codex plugin add claude-skills-to-codex@claude-skills-to-codex
 codex plugin list
 ```
 
-You do not need to create a personal marketplace, edit a JSON file, clone the repository, or create a symlink. Codex downloads the plugin from GitHub into its local plugin cache. Start a new Codex session after installation and approve the hook if Codex prompts you. Use the `reload-claude-skills` skill or start a new session after Claude Code skills or commands change.
+You do not need to create a personal marketplace, edit a JSON file, clone the repository, or create a symlink. Codex downloads the plugin from GitHub into its local plugin cache. Start a new Codex session after installation and approve the hook if Codex prompts you. Use `claude-skills-to-codex:reload` or start a new session after Claude Code skills or commands change.
 
 To update the plugin, run:
 
@@ -57,4 +57,4 @@ To test the hook protocol:
 printf '%s\n' '{"hook_event_name":"SessionStart","cwd":"'"$PWD"'"}' | python3 scripts/load_claude_skills.py --hook
 ```
 
-Install or enable the plugin in Codex, trust its hook when prompted, then start a new session. Use the `reload-claude-skills` skill after changing Claude Code skills or commands.
+Install or enable the plugin in Codex, trust its hook when prompted, then start a new session. Use `claude-skills-to-codex:reload` after changing Claude Code skills or commands.
