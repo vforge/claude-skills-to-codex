@@ -141,6 +141,10 @@ def discover(cwd: Path) -> tuple[list[Skill], list[tuple[Path, str]], list[str]]
             try:
                 if not path.is_file():
                     continue
+                # Claude's trash directory contains intentionally retired skills;
+                # they should not be offered as active Codex skills.
+                if ".trash" in path.parts:
+                    continue
                 text = path.read_text(encoding="utf-8", errors="replace")[:READ_LIMIT]
                 name = _skill_name(path, root)
             except (OSError, ValueError):
@@ -183,9 +187,50 @@ def _cache(discovered: list[Skill], roots: list[tuple[Path, str]], cwd: Path) ->
         pass
 
 
+def _materialize_native_skills(discovered: list[Skill]) -> None:
+    """Create small Codex-discoverable wrappers for the discovered Claude skills.
+
+    Codex indexes plugin skills at session start, before SessionStart hooks run,
+    so newly generated wrappers become visible after the next session starts.
+    Keep these separate from the bridge's own skill and replace only our
+    generated subtree.
+    """
+    plugin_root = os.environ.get("PLUGIN_ROOT")
+    if not plugin_root:
+        return
+    destination = Path(plugin_root) / "skills" / "claude-imported"
+    try:
+        destination.mkdir(parents=True, exist_ok=True)
+        for child in destination.iterdir():
+            if child.is_dir():
+                for item in child.iterdir():
+                    if item.is_file():
+                        item.unlink()
+                child.rmdir()
+            elif child.is_file():
+                child.unlink()
+        for skill in discovered:
+            slug = re.sub(r"[^a-z0-9-]+", "-", skill.name.lower()).strip("-") or "skill"
+            name = f"claude-{slug}"
+            description = f"Claude Code skill ({skill.source}): {skill.description}"
+            safe_description = description.replace("\n", " ").replace('"', "'")
+            folder = destination / slug
+            folder.mkdir(parents=True, exist_ok=True)
+            body = (
+                f"---\nname: {name}\ndescription: \"{safe_description}\"\n---\n\n"
+                "Use this Claude Code skill when relevant. Read and follow its complete "
+                f"instructions at `{skill.path}`. Its supporting files remain alongside that file.\n"
+            )
+            (folder / "SKILL.md").write_text(body, encoding="utf-8")
+    except OSError:
+        # Listing generation is best-effort; the injected index still works.
+        pass
+
+
 def render_context(cwd: Path) -> tuple[str, dict[str, object]]:
     discovered, roots, duplicates = discover(cwd)
     _cache(discovered, roots, cwd)
+    _materialize_native_skills(discovered)
 
     lines = [
         "Claude Code skill bridge refreshed.",
