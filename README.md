@@ -14,54 +14,25 @@ The bridge deliberately does not copy skill files or execute their contents auto
 
 ## Install
 
-### Install from GitHub with Codex CLI
+### Install with Codex CLI
 
-Add the plugin to your personal marketplace in `~/.agents/plugins/marketplace.json`. Create the file if it does not exist. If it already exists, add the plugin object to its `plugins` array and keep the other entries.
-
-```bash
-mkdir -p ~/.agents/plugins
-```
-
-Use this complete example for a new marketplace file:
-
-```json
-{
-  "name": "personal",
-  "interface": {
-    "displayName": "Personal"
-  },
-  "plugins": [
-    {
-      "name": "claude-skills-to-codex",
-      "source": {
-        "source": "url",
-        "url": "https://github.com/vforge/claude-skills-to-codex.git"
-      },
-      "policy": {
-        "installation": "AVAILABLE",
-        "authentication": "ON_INSTALL"
-      },
-      "category": "Productivity"
-    }
-  ]
-}
-```
-
-Install and verify the plugin:
+Add this repository's marketplace and install the plugin:
 
 ```bash
-codex plugin add claude-skills-to-codex@personal
+codex plugin marketplace add vforge/claude-skills-to-codex
+codex plugin add claude-skills-to-codex@claude-skills-to-codex
 codex plugin list
 ```
 
-Codex downloads the plugin from GitHub into its local plugin cache. You do not need to clone this repository or create a symlink. Start a new Codex session after installation and approve the hook if Codex prompts you. Use `/reload-skills` after Claude Code skills change.
+You do not need to create a personal marketplace, edit a JSON file, clone the repository, or create a symlink. Codex downloads the plugin from GitHub into its local plugin cache. Start a new Codex session after installation and approve the hook if Codex prompts you. Use `/reload-skills` after Claude Code skills change.
 
-To publish an update, bump `version` in `.codex-plugin/plugin.json` and push the change to GitHub. The marketplace entry above follows the repository's default branch. To install the new version, remove and reinstall the plugin:
+To update the plugin, run:
 
 ```bash
-codex plugin remove claude-skills-to-codex@personal
-codex plugin add claude-skills-to-codex@personal
+codex plugin marketplace upgrade claude-skills-to-codex
 ```
+
+To publish an update, bump `version` in `.codex-plugin/plugin.json` and push the change to GitHub. This marketplace follows the repository's default branch.
 
 ## Local test
 

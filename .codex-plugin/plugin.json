@@ -1,6 +1,6 @@
 {
   "name": "claude-skills-to-codex",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Discover and reload Claude Code skills in the current Codex session.",
   "author": {
     "name": "Local developer"
