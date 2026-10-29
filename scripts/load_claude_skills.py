@@ -3,7 +3,7 @@
 
 The bridge intentionally loads an index instead of copying skill instructions into
 the plugin. Claude Code skills remain in their source directories, so changes are
-picked up on the next session start or reload-skills skill invocation.
+picked up on the next session start or reload-claude-skills skill invocation.
 """
 
 from __future__ import annotations
@@ -285,7 +285,7 @@ def render_context(cwd: Path) -> tuple[str, dict[str, object]]:
 
     lines.extend([
         "",
-        "Use the reload-skills skill to rescan during this turn; new menu entries appear after a new Codex session indexes the generated skills.",
+        "Use the reload-claude-skills skill to rescan during this turn; new menu entries appear after a new Codex session indexes the generated skills.",
     ])
 
     payload = {

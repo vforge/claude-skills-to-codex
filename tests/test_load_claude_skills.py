@@ -274,7 +274,7 @@ class LoadClaudeSkillsTests(unittest.TestCase):
             self.assertTrue(skills[menu_name]["path"].endswith(f"/claude-imported/{name}/SKILL.md"))
         self.assertIn("nested project skill", skills["skill1"]["description"])
         self.assertIn("nested project command", skills["command1"]["description"])
-        self.assertIn("claude-skills-to-codex:reload-skills", skills)
+        self.assertIn("claude-skills-to-codex:reload-claude-skills", skills)
 
 
 if __name__ == "__main__":

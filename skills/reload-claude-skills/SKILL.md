@@ -1,5 +1,5 @@
 ---
-name: reload-skills
+name: reload-claude-skills
 description: Rescan Claude Code skills and commands and refresh their availability in Codex.
 ---
 
